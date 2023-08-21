@@ -1,0 +1,45 @@
+version: '3.9'
+
+networks:
+  messagingservicenet:
+    external: true
+
+services:
+  grafana:
+    image: grafana/grafana
+    ports:
+      - 3000:3000
+    networks:
+      - messagingservicenet
+  prometheus:
+    image: prom/prometheus
+    ports:
+      - 9090:9090
+    volumes:
+      - ./prometheus.yaml:/etc/prometheus/prometheus.yml:ro
+    networks:
+      - messagingservicenet
+  redis:
+    container_name: redis
+    image: 'bitnami/redis:7.2.0'
+    environment:
+      - REDIS_REPLICATION_MODE=master
+      - REDIS_PASSWORD=root
+    volumes:
+      - redis-data:/bitnami/redis/data
+    networks:
+      - messagingservicenet
+  redis-exporter:
+    container_name: redis_exporter
+    image: oliver006/redis_exporter
+    ports:
+      - 9121:9121
+    environment:
+      REDIS_ADDR: "redis:6379"
+      REDIS_USER: null
+      REDIS_PASSWORD: root
+    networks:
+      - messagingservicenet
+volumes:
+  redis-data:
+    name: redis-data
