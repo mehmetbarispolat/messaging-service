@@ -1,0 +1,27 @@
+[build-system]
+requires = ["setuptools", "setuptools-scm"]
+build-backend = "setuptools.build_meta"
+
+[project]
+name = "messaging_service"
+authors = [
+    {name = "Mehmet Baris POLAT", email = "mehmetbarispolat@gmail.com"},
+]
+description = "Messaging Service"
+readme = "README.md"
+requires-python = ">=3.11"
+license = {text = "MIT License"}
+dependencies = [
+    "fastapi>=0.103.0",
+    "uvicorn>=0.23.2",
+    "redis>=5.0.0"
+]
+
+[project.optional-dependencies]
+dev = ["black>=23.3.0"]
+
+[tool.setuptools.packages.find]
+where = ["src"]
+
+[project.scripts]
+messaging-service = 'messaging_service:main'
