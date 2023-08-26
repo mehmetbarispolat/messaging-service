@@ -8,7 +8,14 @@
 		"--name=messaging-service",
 		"--volume=shared-vol:/shared-vol",
 		"--network=messagingservicenet"
-	]
+	],
+	"customizations": {
+		"vscode": {
+			"extensions": [
+				"ms-python.black-formatter"
+			]
+		}
+	}
 	// Features to add to the dev container. More info: https://containers.dev/features.
 	// "features": {},
 	// Use 'forwardPorts' to make a list of ports inside the container available locally.
