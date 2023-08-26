@@ -21,23 +21,15 @@ services:
       - messagingservicenet
   redis:
     container_name: redis
-    image: 'bitnami/redis:7.2.0'
+    image: 'redis/redis-stack:7.2.0-v0'
     environment:
       - REDIS_REPLICATION_MODE=master
       - REDIS_PASSWORD=root
     volumes:
-      - redis-data:/bitnami/redis/data
-    networks:
-      - messagingservicenet
-  redis-exporter:
-    container_name: redis_exporter
-    image: oliver006/redis_exporter
+      - redis-data:/data
     ports:
-      - 9121:9121
-    environment:
-      REDIS_ADDR: "redis:6379"
-      REDIS_USER: null
-      REDIS_PASSWORD: root
+      - 6379:6379
+      - 8001:8001
     networks:
       - messagingservicenet
 volumes:
