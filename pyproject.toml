@@ -4,6 +4,7 @@ build-backend = "setuptools.build_meta"
 
 [project]
 name = "messaging_service"
+version = "0.0.0"
 authors = [
     {name = "Mehmet Baris POLAT", email = "mehmetbarispolat@gmail.com"},
 ]
