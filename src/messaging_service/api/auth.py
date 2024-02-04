@@ -9,7 +9,7 @@ from pydantic import BaseModel
 
 # to get a string like this run:
 # openssl rand -hex 32
-SECRET_KEY = "09d25e094faa6ca2556c818166b7a9563b93f7099f6f0f4caa6cf63b88e8d3e7"
+SECRET_KEY = "8a456b9eb61cb82c2dea0dd358e4b972774e7878af39d8308af6325ddb72eff3"
 ALGORITHM = "HS256"
 ACCESS_TOKEN_EXPIRE_MINUTES = 30
 
@@ -112,7 +112,7 @@ async def get_current_active_user(
     return current_user
 
 
-async def login_for_access_token(
+async def token(
     form_data: Annotated[OAuth2PasswordRequestForm, Depends()]
 ) -> Token:
     user = authenticate_user(fake_users_db, form_data.username, form_data.password)

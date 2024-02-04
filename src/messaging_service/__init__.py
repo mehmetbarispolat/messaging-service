@@ -1,13 +1,38 @@
 import uvicorn
 
+from contextlib import asynccontextmanager
 from functools import partial
 from fastapi import FastAPI, WebSocket
+from sqlmodel import Session, SQLModel, create_engine
 
 from .api import get, websocket_endpoint
-from .api.auth import login_for_access_token, read_users_me, read_own_items, User
+from .api.auth import token, read_users_me, read_own_items, User
 
 
-app = FastAPI()
+config = {
+    "host": "0.0.0.0",
+    "port": 5000,
+    "log_level": "info",
+    "db": {"URI": "sqlite:///test.db"},
+    "auth": {"algorithm": "HS256", "access_token_expire_minutes": 30},
+}
+
+connect_args = {"check_same_thread": False}
+engine = create_engine(config["db"]["URI"], echo=True, connect_args=connect_args)
+
+
+@asynccontextmanager
+async def lifespan(app: FastAPI):
+    SQLModel.metadata.create_all(engine)
+    yield
+
+
+app = FastAPI(lifespan=lifespan)
+
+
+def get_session():
+    with Session(engine) as session:
+        yield session
 
 
 class ConnectionManager:
@@ -30,24 +55,9 @@ class ConnectionManager:
 
 
 def main():
-    config = {
-        "host": "0.0.0.0",
-        "port": 5000,
-        "log_level": "info",
-        "db": {
-            "johndoe": {
-                "username": "johndoe",
-                "full_name": "John Doe",
-                "email": "johndoe@example.com",
-                "hashed_password": "$2b$12$EixZaYVK1fsbw1ZfbX3OXePaWxn96p36WQoeG6Lruj3vjPGga31lW",
-                "disabled": False,
-            }
-        },
-        "auth": {"algorithm": "HS256", "access_token_expire_minutes": 30},
-    }
 
     app.get("/")(get)
-    app.post("/token")(login_for_access_token)
+    app.post("/token")(token)
     app.get("/users/me/", response_model=User)(read_users_me)
     app.get("/users/me/items/")(read_own_items)
 
@@ -55,7 +65,12 @@ def main():
     # TODO: Add manager as parameter to websocket_endpoint by using partial
     app.websocket("/ws/{client_id}")(partial(websocket_endpoint, manager=manager))
 
-    uvicorn.run("messaging_service:app", host=config.get("host"), port=config.get("port"), log_level=config.get("log_level"))
+    uvicorn.run(
+        "messaging_service:app",
+        host=config.get("host"),
+        port=config.get("port"),
+        log_level=config.get("log_level"),
+    )
 
 
 if __name__ == "__main__":
